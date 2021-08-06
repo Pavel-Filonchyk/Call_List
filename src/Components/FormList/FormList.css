@@ -1,0 +1,22 @@
+.main_card{
+    width: 100%;
+    height: 100%;
+    padding-top: 15px;
+    justify-content: center;
+    align-items:center;  
+    text-align: center;
+}
+.card{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 200px;
+    height: 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color:cornsilk;
+}
+.checkbox{
+    margin: 8px;
+    margin-top: 40px;
+}
