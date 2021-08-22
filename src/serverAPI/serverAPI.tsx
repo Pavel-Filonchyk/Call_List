@@ -1,3 +1,5 @@
+import {ValueType} from "../Components/Main/Main"
+
 export const serverAPI = {
     getItems () {
     return fetch('http://localhost:3000/data')
@@ -6,8 +8,7 @@ export const serverAPI = {
         })
     },
 
-    postItems (values) {
-        
+    postItems (values: ValueType) {
         return fetch('http://localhost:3000/data', {
             method: "POST",
             headers: {

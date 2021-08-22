@@ -1,5 +1,6 @@
+import {ActionTypes} from "./actions"
 const initialState = {
-    items: [],
+    items: [] as any,
     text: '',
     //error: null as number | null,
     impotant: false,
@@ -7,7 +8,7 @@ const initialState = {
     adder: [] as any
 }
 export type InitialStateType = typeof initialState 
-const mainReducer = (state = initialState, action: any) : InitialStateType => {
+const mainReducer = (state = initialState, action: ActionTypes): InitialStateType => {
     switch (action.type){     
         case 'LOADER':
         return {

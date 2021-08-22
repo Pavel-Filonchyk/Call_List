@@ -1,5 +1,5 @@
-import React, {Component} from 'react'
-import { connect } from 'react-redux'
+import React from 'react'
+import {useSelector} from "react-redux"
 import {Link} from 'react-router-dom';
 import FormList from '../FormList/FormList';
 import {AppType} from '../../store'
@@ -16,18 +16,18 @@ type DataType = {
 type PropsType = {
     items: Array<DataType>
 }
-class NameList extends Component  <PropsType>{
-    render() {
-        const {items} = this.props;
 
-        const names = items.sort((a, b) =>{
+let NameList : React.FC<PropsType> = () => {
+    const items = useSelector((state: AppType) => state.mainReducer.items)
+
+        const names = items.sort((a: any, b: any) =>{
             let nameA=a.values.last_name.toLowerCase(), nameB=b.values.last_name.toLowerCase()
                 if (nameA < nameB) 
                   return -1
                 if (nameA > nameB)
                   return 1
                 return 0 
-                }).map(users => {
+                }).map((users: DataType) => {
                     return (<FormList
                     key={users.values.last_name} 
                     users={users}
@@ -47,12 +47,6 @@ class NameList extends Component  <PropsType>{
             </div> 
         </div>
     )
-    }
 }
-const mapStateToProps = (state: AppType) =>{
-    return {
-        items: state.mainReducer.items
-    }
-}
-export default connect(mapStateToProps)(NameList)
+export default NameList
 

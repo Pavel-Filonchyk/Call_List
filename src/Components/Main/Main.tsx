@@ -1,24 +1,21 @@
+import React from 'react'
+import {Link} from 'react-router-dom'
+import {useSelector, useDispatch} from "react-redux"
 
-import {BrowserRouter as Router, Route} from 'react-router-dom'
-import {Link} from 'react-router-dom';
-import {Component} from 'react';
-import {connect} from 'react-redux';
-import NameList from '../NameList/NameList';
 import Result from '../Result/Result'
-import Form from '../Form/Form';
-import Call from '../Call/Call';
-import SearchForm from '../SearchForm/SearchForm';
+import FormikList from '../Form/FormikList'
+import Call from '../Call/Call'
+import SearchForm from '../SearchForm/SearchForm'
 import {AppType} from '../../store'
-import './Main.css';
-import {viewModal, closeModal, loader, itemsError, input, allNums, getElems, postElems} from '../../actions';
-import Background from './img/phone.jpg'
+import './Main.css'
+import {actions, postElems} from '../../actions'
 
-type DataType = {
+export type DataType<M> = {
     values: {
         first_name: string
         last_name: string
         number: number
-        message: string
+        message: M 
         id: number
     }
 }
@@ -29,90 +26,78 @@ export type ValueType = {
     message: string
 }
 type PropsType = {
+    loader: (data: DataType<string>[]) => void 
+    getElems: () => void
+    postElems: (values: ValueType) => void
+    items: DataType<string>[]
+    text: string
+    modal: boolean
+    adder: Array<any>
     viewModal: () => void
     closeModal: () => void
     allNums: (num: number) => void
     itemsError: () => void
-    loader: (data: Array<DataType>) => void
-    input: (newText: string) => void
-    getElems: () => void
-    postElems: (values: ValueType) => void
-    items: Array<DataType>
-    text: string
-    modal: boolean
-    adder: Array<any>
+    input: (newText: string) => void      
 }
-class Main extends Component <PropsType>{
-    onModal = () => {
-        this.props.viewModal()
+let Main : React.FC<PropsType> = () => {
+    const dispatch = useDispatch()
+    
+    const items = useSelector((state: AppType) => state.mainReducer.items)
+    const text = useSelector((state: AppType) => state.mainReducer.text)
+    const modal = useSelector((state: AppType) => state.mainReducer.modal)
+    const adder = useSelector((state: AppType) => state.mainReducer.adder)
+    console.log(items)
+    const onModal = () => {
+        dispatch(actions.viewModal())
     }
-    offModal = () => {
-        this.props.closeModal()
+    const offModal = () => {
+        dispatch(actions.closeModal())
     }
-    phoneNumber = (num: number) => {
-        this.props.allNums(num)
-        console.log(num)
+    const phoneNumber = (num: number) => {
+        dispatch(actions.allNums(num))
     }
-    onInput = (value: any, dispatch: any, props: any) =>{
-        this.props.input(value)
+    const onInput = (value: any, dispatch: any, props: any) =>{
+        dispatch(actions.input(value))
         dispatch(props.reset())
     }   
-    submit = (values: ValueType, dispatch: any, props: any) => {
-        console.log(values)
-        this.props.postElems(values)
+    const submit = (values: any) => {
+        dispatch(postElems(values))
     }
-    componentDidMount() {
-        this.props.getElems()
-    }
+    const texts = Object.values(text).join('') 
+    const name = items.filter((user: DataType<string>) => user.values.last_name.toLowerCase() === texts || user.values.first_name.toLowerCase() === texts)
+        .map((users: any) =>{
+        return (<Result
+        key={users.values.first_name} 
+        users={users}
+        />
+        )
+    })
 
-    render(){
-        const {items, text, modal, adder} = this.props
-
-        const texts = Object.values(text).join('') 
-        const name = items.filter((user: DataType) => user.values.last_name.toLowerCase() === texts || user.values.first_name.toLowerCase() === texts)
-            .map(users =>{
-            return (<Result
-            key={users.values.first_name} 
-            users={users}
-            />
-            )
-        })
-
-        const viewNum = adder.join(" ")
-        console.log(viewNum)
+    const viewNum = adder.join(" ")
+    let telethone = `tel:${viewNum}`
     return (
-        <Router>
-            <div className="wrap_field flex-column d-flex justify-content-center">
-                <div className="field d-flex flex-column justify-content-center "
-                    style={{background: `url(${Background}) center center/cover no-repeat`, height: "410px", width: "410px"}}
-                    >               
-                    <Link to="/NameList/">
-                        <i className="link bi bi-card-list"></i>
-                    </Link> 
-                    <div className="wrap_input">
-                        <SearchForm
-                            onSubmit={this.onInput}
-                        />
-                    </div>
-                    <div onClick={this.onModal}
-                    >
-                        <i className="circle bi bi-person-plus"></i>
-                    </div>
-                    <Call
-                        phoneNumber={this.phoneNumber}
-                    />
-                    <div className="phone d-flex">
-                        <i className="pone_icon bi bi-telephone"></i><a href="tel:{viewNum}"><b>{viewNum}</b></a>
-                    </div>
-                    
-                </div>
+        <>        
+            <Link to="/NameList/">
+                <i className="link bi bi-card-list"></i>
+            </Link> 
+            <div className="wrap_input">
+                <SearchForm
+                    onSubmit={onInput}
+                />
+            </div>
+            <div onClick={onModal}
+            >
+                <i className="circle bi bi-person-plus"></i>
+            </div>
+            <Call
+                phoneNumber={phoneNumber}
+            />
+            <div className="phone d-flex">
+                <i className="pone_icon bi bi-telephone"></i><a href={telethone}><b>{viewNum}</b></a>
+            </div>
 
-                <Route exact path="/NameList" component={NameList}/>
-                <Route exact path="/Main" component={Main}/>
-
-                <div className = "result">
-                    {name}
-                </div>
+            <div className = "result">
+                {name}
             </div>
  
             <div className="modal"
@@ -120,40 +105,18 @@ class Main extends Component <PropsType>{
             >
                 <div className="modal__dialog">
                     <div className="modal__content">   
-                        <Form
-                            offModal={this.offModal}
-                            onSubmit={this.submit}
+                        <FormikList
+                            offModal={offModal}
+                            onSubmit={submit}
                         />
                     </div>
                 </div>
             </div>
-        </Router>
-       
+        </>
     )
-    }
 }
+export default Main
 
-const mapStateToProps = (state: AppType) =>{
-    return {
-        items: state.mainReducer.items,
-        text: state.mainReducer.text,
-        modal: state.mainReducer.modal,   
-        adder: state.mainReducer.adder,
-    }
-}
-
-const mapDispatchToProps = {
-    loader,      
-    itemsError,
-    viewModal,
-    closeModal,
-    input,
-    allNums,
-    getElems,
-    postElems
-    
-}
-export default connect(mapStateToProps, mapDispatchToProps)(Main)
 
 
 
